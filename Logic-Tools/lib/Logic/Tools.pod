@@ -8,6 +8,25 @@ Logic::Tools - The great new Logic::Tools!
 
 =head1 SYNOPSIS
 
+=pod
+
+    my $tools=Logic::Tools->new(config_file	=>	'/etc/kamailio/kamailio-tools.ini',
+				lock_file	=>	$lock_file,
+				runas_user	=>	$runas_user,
+				logfile		=>	'/var/log/dialog_from_kamctl.log');
+    
+    my $db_host=$tools->read_config( 'dialog_from_kamctl', 'db_host');
+    
+    #проверка не запущен ли этот процесс
+    $tools->check_proc();
+    
+    #запускаем как демон
+    $tools->start_daemon()
+    
+    $tools->logprint("info","диалог:  $state $callid $from_uri $to_uri ");
+    
+=cut
+
 =head1 EXPORT
 
 =head1 SUBROUTINES/METHODS
