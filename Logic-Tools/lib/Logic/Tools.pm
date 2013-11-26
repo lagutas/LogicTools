@@ -218,13 +218,6 @@ sub start_daemon
 }
 
 
-sub ConvertDateToUnixtime {
-        my $date = shift;
-        my $timeParser = DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M');
-        my $dt = $timeParser->parse_datetime($date);
-        return $dt->epoch;
-}
-
 sub DecompositionNumber {
     my $number = shift;
     my @result;
