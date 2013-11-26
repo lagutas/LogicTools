@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Config::IniFiles;
 use POSIX;
+use DateTime::Format::Strptime;
 use Log::Any;
 use Log::Any::Adapter;
 use Log::Log4perl qw(:easy);
@@ -57,9 +58,10 @@ sub new
     if($self->{'logfile'})
     {
         Log::Log4perl->easy_init(
-                                    {level  => 'INFO', 
-                                     file   => '>>'.$self->{'logfile'},
-                                     layout => "%d %r ms [%P] %p: %m%n",
+                                    {
+                                        level  => 'INFO', 
+                                        file   => '>>'.$self->{'logfile'},
+                                        layout => "%d %r ms [%P] %p: %m%n",                                        
                                     }
                                 );
     }
@@ -214,6 +216,83 @@ sub start_daemon
 
     return 1;
 }
+
+
+sub ConvertDateToUnixtime {
+        my $date = shift;
+        my $timeParser = DateTime::Format::Strptime->new(pattern => '%Y-%m-%d %H:%M');
+        my $dt = $timeParser->parse_datetime($date);
+        return $dt->epoch;
+}
+
+sub DecompositionNumber {
+    my $number = shift;
+    my @result;
+    if (length($number) == 2 ) {
+        if (($number < 20) && ($number > 0) ) {
+            push(@result, $number);
+            return @result;
+        }
+        elsif ($number eq "00") {
+            push @result, "0";
+            return @result;
+        }
+        else {
+             my $second = substr($number, 1);
+             if ($second eq "0") {
+                 push (@result, $number);
+                 return @result
+             } else {
+                 my $one = $number - $second;
+                 push(@result, $one);
+                 push(@result, $second);
+                 return @result;
+             }
+        }
+    } else {
+        return @result;
+    }
+
+}
+
+sub AGIDateSpeach {
+    my ($model, $AGI, $day, $month) = @_; #inicialaze variable, model(that get sounds dir), $AGI(agi object), $(date)
+    my $self = $model->new(%$model,@_);
+
+    my $soundsDir = $self->{'sounds_dir'};
+    $AGI->exec('Playback', "${soundsDir}${day}"); #play day
+    $AGI->exec('Playback', "${soundsDir}${month}"); #play month    
+}
+
+sub AGITimeSpeach {
+    my ($model, $AGI, $hours, $minutes) = @_;
+    my $self = $model->new(%$model,@_);
+    my $soundsDir = $self->{'sounds_dir'};
+ 
+    my @minutes_array = DecompositionNumber($minutes);
+    my @hours_array = DecompositionNumber($hours);
+ 
+    foreach my $file_to_stream ( @hours_array ) {
+        $AGI->exec('Playback', "${soundsDir}debt/digits/$file_to_stream"); #час числом
+    }
+
+    #Блок для проигрывания слов "часа" или "часов"
+    if (($hours_array[-1] > 4) && ($hours_array[-1] < 21) ) {
+       $AGI->exec('Playback',"${soundsDir}/planwork/oclock"); #часов
+    } else {
+       $AGI->exec('Playback',"${soundsDir}/planwork/chasa"); #часа
+    }
+
+
+    foreach my $file_to_stream ( @minutes_array ) {
+        $AGI->exec('Playback', "${soundsDir}debt/digits/$file_to_stream"); #час числом
+    }
+
+    $AGI->exec('Playback',"${soundsDir}/planwork/minut");
+
+}
+
+
 
 =head1 AUTHOR
 
