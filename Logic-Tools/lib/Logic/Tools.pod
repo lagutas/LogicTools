@@ -10,10 +10,13 @@ Logic::Tools - The great new Logic::Tools!
 
 =pod
 
-    my $tools=Logic::Tools->new(config_file	=>	'/etc/kamailio/kamailio-tools.ini',
-				lock_file	=>	$lock_file,
-				runas_user	=>	$runas_user,
-				logfile		=>	'/var/log/dialog_from_kamctl.log');
+    my $tools=Logic::Tools->new(
+                                    config_file	=>	'/etc/kamailio/kamailio-tools.ini',
+				                    lock_file	=>	$lock_file,
+				                    runas_user	=>	$runas_user,
+				                    logfile		=>	'/var/log/dialog_from_kamctl.log',
+                                    sounds_dir  =>  '/var/lib/asterisk/sounds/ru'
+                                );
     
     my $db_host=$tools->read_config( 'dialog_from_kamctl', 'db_host');
     
@@ -24,12 +27,29 @@ Logic::Tools - The great new Logic::Tools!
     $tools->start_daemon()
     
     $tools->logprint("info","диалог:  $state $callid $from_uri $to_uri ");
+
+    # Воспроизведение даты и времени
+    $AGI = new Asterisk::AGI;
+    %input = $AGI->ReadParse();
+
+    $tools->AGIDateSpeach($AGI, "10", "10");
+    $tools->AGITimeSpeach($AGI, "23", "45");
+
     
 =cut
 
 =head1 EXPORT
 
 =head1 SUBROUTINES/METHODS
+
+=over 4
+
+=item DecompositionNumber (Number)
+
+Данная функция используется для разложения минут или часов, т.е. передается исходное число, на выходе массив состоящий из разложения этого числа.
+например, передаем число 45, на выходе массив их двух элементов 40 и 5.
+
+=back
 
 =head1 constructor
 
@@ -52,6 +72,10 @@ Logic::Tools - The great new Logic::Tools!
 пользователь под которым запускать приложение
 
 =item logfile файл для сохранения лога
+
+=item sounds_dir 
+
+Каталог звуковых файлов
 
 =back
 
@@ -105,7 +129,23 @@ emergency
 
 =item start_daemon
 
-запускает процесс как демон под пользователем runas_user, создает файл блокировки lock_file
+Запускает процесс как демон под пользователем runas_user, создает файл блокировки lock_file
+
+=back
+
+=item AGIDateSpeach ( AGI, Day, Month)
+
+В качестве параметров передается уже созданный объект $AGI, день и месяц. Также должен быть указан параметр в конструторе sounds_dir (корневой каталог звуковых файлов),
+Имена файлов дня и месяца должны соответствовать передаваемым значениям.
+Внимательно проверяйте пути в Playback'ах!
+
+=back
+
+=item AGITimeSpeach ( AGI, Hour, Minute)
+
+В качестве параметров передается уже созданный объект $AGI, час и минуты. Также должен быть указан параметр в конструторе sounds_dir (корневой каталог звуковых файлов),
+Имена файлов часа и минут должны соответствовать передаваемым значениям. Так как имеются не все звуковые файлы чисел, то используется функция DecompositionNumber.
+Внимательно проверяйте пути в Playback'ах!
 
 =back
 
