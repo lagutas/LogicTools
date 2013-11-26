@@ -11,11 +11,11 @@ Logic::Tools - The great new Logic::Tools!
 =pod
 
     my $tools=Logic::Tools->new(
-                                    config_file	=>	'/etc/kamailio/kamailio-tools.ini',
-				                    lock_file	=>	$lock_file,
-				                    runas_user	=>	$runas_user,
-				                    logfile		=>	'/var/log/dialog_from_kamctl.log',
-                                    sounds_dir  =>  '/var/lib/asterisk/sounds/ru'
+                                config_file	=>	'/etc/kamailio/kamailio-tools.ini',
+                                lock_file	=>	$lock_file,
+                                runas_user	=>	$runas_user,
+                                logfile		=>	'/var/log/dialog_from_kamctl.log',
+                                sounds_dir  =>  '/var/lib/asterisk/sounds/ru'
                                 );
     
     my $db_host=$tools->read_config( 'dialog_from_kamctl', 'db_host');
