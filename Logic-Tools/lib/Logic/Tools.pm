@@ -58,10 +58,9 @@ sub new
     if($self->{'logfile'})
     {
         Log::Log4perl->easy_init(
-                                    {
-                                        level  => 'INFO', 
-                                        file   => '>>'.$self->{'logfile'},
-                                        layout => "%d %r ms [%P] %p: %m%n",                                        
+                                    {level  => 'INFO', 
+                                     file   => '>>'.$self->{'logfile'},
+                                     layout => "%d %r ms [%P] %p: %m%n",
                                     }
                                 );
     }
@@ -75,20 +74,20 @@ sub new
 
 sub read_config
 {
-	my $model=shift;
+    my $model=shift;
     my $self=$model->new(%$model,@_);
 
     my $config_file = $self->{'config_file'};
-	my $section = shift || die "не задана секция для чтения конфига";
-	my $param = shift || die "не задан параметр для чтения конфига";
+        my $section = shift || die "не задана секция для чтения конфига";
+        my $param = shift || die "не задан параметр для чтения конфига";
 
     my $cfg=new Config::IniFiles( -file => $config_file ) or die "Error: не найден конфигурационный файл $config_file";
 
-	my $value = $cfg->val( $section, $param);
+        my $value = $cfg->val( $section, $param);
 
-	die "Не найден параметр ".$param." в секции ".$section unless(defined($value));
+        die "Не найден параметр ".$param." в секции ".$section unless(defined($value));
 
-	return $value;
+        return $value;
 }
 
 
@@ -219,7 +218,8 @@ sub start_daemon
 
 
 sub DecompositionNumber {
-    my $number = shift;
+	my $number = shift;
+ 
     my @result;
     if (length($number) == 2 ) {
         if (($number < 20) && ($number > 0) ) {
@@ -248,41 +248,55 @@ sub DecompositionNumber {
 
 }
 
-sub AGIDateSpeach {
-    my ($model, $AGI, $day, $month) = @_; #inicialaze variable, model(that get sounds dir), $AGI(agi object), $(date)
-    my $self = $model->new(%$model,@_);
+sub AGIDateSpeach {      
+    if (length(@_) == 4) {              
+        my ($model, $AGI, $day, $month) = @_;
+        my $self = $model->new(%$model,@_);
 
-    my $soundsDir = $self->{'sounds_dir'};
-    $AGI->exec('Playback', "${soundsDir}${day}"); #play day
-    $AGI->exec('Playback', "${soundsDir}${month}"); #play month    
+
+        my $soundsDir = $self->{'sounds_dir'};
+        if (defined $AGI && $AGI ne '') {
+            $AGI->exec('Playback', "${soundsDir}${day}") or die("error"); #play day
+            $AGI->exec('Playback', "${soundsDir}${month}") or die("error"); #play month    
+            return 1;
+        } else {
+            return "error";        
+        }
+    } else {
+        return "error";
+    }
 }
 
 sub AGITimeSpeach {
-    my ($model, $AGI, $hours, $minutes) = @_;
-    my $self = $model->new(%$model,@_);
-    my $soundsDir = $self->{'sounds_dir'};
+    if (length(@_) == 4) {
+    
+        my ($model, $AGI, $hours, $minutes) = @_;
+        my $self = $model->new(%$model,@_);
+        my $soundsDir = $self->{'sounds_dir'};
  
-    my @minutes_array = DecompositionNumber($minutes);
-    my @hours_array = DecompositionNumber($hours);
+        my @minutes_array = DecompositionNumber($minutes);
+        my @hours_array = DecompositionNumber($hours);
  
-    foreach my $file_to_stream ( @hours_array ) {
-        $AGI->exec('Playback', "${soundsDir}debt/digits/$file_to_stream"); #час числом
-    }
+        foreach my $file_to_stream ( @hours_array ) {
+            $AGI->exec('Playback', "${soundsDir}debt/digits/$file_to_stream"); #час числом
+        }
 
-    #Блок для проигрывания слов "часа" или "часов"
-    if (($hours_array[-1] > 4) && ($hours_array[-1] < 21) ) {
-       $AGI->exec('Playback',"${soundsDir}/planwork/oclock"); #часов
+        #Блок для проигрывания слов "часа" или "часов"
+        if (($hours_array[-1] > 4) && ($hours_array[-1] < 21) ) {
+            $AGI->exec('Playback',"${soundsDir}/planwork/oclock"); #часов
+        } else {
+            $AGI->exec('Playback',"${soundsDir}/planwork/chasa"); #часа
+        }
+
+        foreach my $file_to_stream ( @minutes_array ) {
+            $AGI->exec('Playback', "${soundsDir}debt/digits/$file_to_stream"); #час числом
+        }
+
+        $AGI->exec('Playback',"${soundsDir}/planwork/minut");
+        return 1;
     } else {
-       $AGI->exec('Playback',"${soundsDir}/planwork/chasa"); #часа
+        return "error";
     }
-
-
-    foreach my $file_to_stream ( @minutes_array ) {
-        $AGI->exec('Playback', "${soundsDir}debt/digits/$file_to_stream"); #час числом
-    }
-
-    $AGI->exec('Playback',"${soundsDir}/planwork/minut");
-
 }
 
 

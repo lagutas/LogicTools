@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 
-use Test::More tests => 10;
+use Test::More tests => 14;
 use Test::Fork;
 
 
@@ -19,7 +19,9 @@ close(TEST_FILE);
 my $tools = Logic::Tools->new(	config_file =>	'test.ini',
 								lock_file	=>	'test.pid',
 								runas_user	=>	'root',
-								logfile		=>	'test.log');
+								logfile		=>	'test.log',
+								sounds_dir	=>	'/var/lib/asterisk/sounds/ru/'
+								);
 #проверяем что объект принадлжеит классу
 isa_ok( $tools, 'Logic::Tools' );																	#2
 
@@ -48,6 +50,14 @@ open(my $logfile,'<','test.log');
 my $test_log_string=<$logfile>;
 like( $test_log_string, qr/^\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}\s\d+\sms\s\[\d+\]\sINFO:\stest$/, "logfile is ok" );	#10
 
+my $AGI = new Asterisk::AGI;
+my %input = $AGI->ReadParse();
+
+use Asterisk::AGI;
+use_ok( 'Asterisk::AGI');	#11
+is($tools->AGIDateSpeach('12','10'),"error",'AGIDateSpeach work fine');		#12
+is($tools->AGIDateSpeach($AGI, '10','10'),"error",'AGIDateSpeach work fine');	#13
+is($tools->AGITimeSpeach('12','10'),"error",'AGITimeSpeach work fine');		#14
 
 close($logfile);
 
