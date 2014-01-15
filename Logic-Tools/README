@@ -16,6 +16,19 @@ INSTALLATION
 
 To install this module, run the following commands:
 
+
+	git clone https://github.com/lagutas/LogicTools.git
+	cp -r LogicTools /usr/src/LogicTools
+	cd /usr/src/LogicTools/Logic-Tools
+	aptitude install libmodule-install-perl libconfig-inifiles-perl liblog-any-perl liblog-any-adapter-perl liblog-log4perl-perl libtest-strict-perl libtest-fixme-perl libtest-perl-critic-perl libtest-sharedfork-perl 
+
+	wget http://ftp.us.debian.org/debian/pool/main/libl/liblog-any-adapter-log4perl-perl/liblog-any-adapter-log4perl-perl_0.06-1_all.deb
+	wget http://ftp.us.debian.org/debian/pool/main/libt/libtest-fork-perl/libtest-fork-perl_0.02-1_all.deb
+
+
+	dpkg -i liblog-any-adapter-log4perl-perl_0.06-1_all.deb
+	dpkg -i libtest-fork-perl_0.02-1_all.deb
+
 	perl Makefile.PL
 	make
 	make test
