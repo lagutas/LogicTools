@@ -46,8 +46,7 @@ fork_ok(1, sub
 is($tools->logprint("info","test"),1,'logprint work fine');											#9
 open(my $logfile,'<','test.log');
 my $test_log_string=<$logfile>;
-like( $test_log_string, qr/^\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}\s\d+\sms\s\[\d+\]\sINFO:\stest$/, "logfile is ok" );	#10
-
+like( $test_log_string, qr/^\d{4}\/\d{2}\/\d{2}\s\d{2}:\d{2}:\d{2}\s\[\d+\]\sinfo:\stest$/, "logfile is ok" );	#10
 
 close($logfile);
 

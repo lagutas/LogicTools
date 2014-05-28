@@ -4,24 +4,22 @@ use 5.10.1;
 use strict;
 use warnings;
 use Config::IniFiles;
+use Time::localtime;
+
 use POSIX;
-use Log::Any;
-use Log::Any::Adapter;
-use Log::Log4perl qw(:easy);
-Log::Any::Adapter->set('Log4perl');
 
 =head1 NAME
 
-Logic::Tools - The great new Logic::Tools!
+Voiecng::Tools - The great new Logic::Tools!
 
 =head1 VERSION
 
-Version 0.01
+Version 0.2
 
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 =head1 SYNOPSIS
@@ -49,21 +47,13 @@ if you don't export anything, such as for a purely object-oriented module.
 sub new
 {
     my $invocant = shift; # первый параметр - ссылка на объект или имя класса
-    my $class = ref($invocant) || $invocant; # получение имени класса
+    my $class = ref($invocant) || $invocant; # получение имени класса        
     my $self = { @_ }; # ссылка на анонимный хеш - это и будет нашим новым объектом, инициализация объекта
+    my $log_level;
+
     $self->{NAME}=$invocant;
     $self->{VERSION}=$VERSION;
-
-    if($self->{'logfile'})
-    {
-        Log::Log4perl->easy_init(
-                                    {level  => 'INFO', 
-                                     file   => '>>'.$self->{'logfile'},
-                                     layout => "%d %r ms [%P] %p: %m%n",
-                                    }
-                                );
-    }
-
+	
     bless($self, $class); # освящаем ссылку в объект
     return $self; # возвращаем объект
 }
@@ -77,14 +67,14 @@ sub read_config
     my $self=$model->new(%$model,@_);
 
     my $config_file = $self->{'config_file'};
-	my $section = shift || die "не задана секция для чтения конфига";
-	my $param = shift || die "не задан параметр для чтения конфига";
+	my $section = shift || die "[FAILED] Не задана секция для чтения конфига";
+	my $param = shift || die "[FAILED] Не задан параметр для чтения конфига";
 
-    my $cfg=new Config::IniFiles( -file => $config_file ) or die "Error: не найден конфигурационный файл $config_file";
+    my $cfg=new Config::IniFiles( -file => $config_file ) or die "[FAILED]] Не найден конфигурационный файл $config_file";
 
 	my $value = $cfg->val( $section, $param);
 
-	die "Не найден параметр ".$param." в секции ".$section unless(defined($value));
+	die "[FAILED] Не найден параметр ".$param." в секции ".$section unless(defined($value));
 
 	return $value;
 }
@@ -101,7 +91,7 @@ sub check_proc
     if( -e $pid_f ) 
     {
 
-        open(my $pid_file,'<',$pid_f) || die "не удалось открыть файл $pid_f";
+        open(my $pid_file,'<',$pid_f) || die "[FAILED] Не удалось открыть файл $pid_f";
         my $pid=<$pid_file>;
         close $pid_file;
         chomp $pid;
@@ -110,7 +100,7 @@ sub check_proc
         unless( -e "/proc/$pid" )
         {
             #print STDERR "Файл блокировки уже существует, но демон с pid=$pid не существует\n";
-            die "Не удается удалить файл блокировки $pid_f\n" if ( !unlink $pid_f );
+            die "[FAILED] Не удается удалить файл блокировки $pid_f\n" if ( !unlink $pid_f );
             #print STDERR "Файл блокировки удален\n";
         }
         else
@@ -130,46 +120,13 @@ sub logprint
     my $loglevel=shift;
     my $message=shift;
 
-    my $log = Log::Any->get_logger();
-    given($loglevel)
-    {
-        when(/^trace/)
-        {
-            $log->trace($message);
-        }
-        when(/^debug/)
-        {
-            $log->debug($message);
-        }
-        when(/^info/)
-        {
-            $log->info($message);
-        }
-        when(/^notice/)
-        {
-            $log->notice($message);
-        }
-        when(/^warning/)
-        {
-            $log->warning($message);
-        }
-        when(/^error/)
-        {
-            $log->error($message);
-        }
-        when(/^critical/)
-        {
-            $log->critical($message);
-        }
-        when(/^alert/)
-        {
-            $log->alert($message);
-        }
-        when(/^emergency/)
-        {
-            $log->emergency($message);
-        }
-    }
+    my $tm=localtime;
+    open my $logfile,">>",$self->{'logfile'};
+    
+    printf $logfile ("%04d/%02d/%02d %02d:%02d:%02d [%d] %s: %s\n",$tm->year+1900,$tm->mon+1,$tm->mday,$tm->hour,$tm->min,$tm->sec,$$,$loglevel,$message);
+
+    close($logfile);
+
     return 1;
 }
 
@@ -181,17 +138,17 @@ sub start_daemon
     my $runas_user=$self->{'runas_user'};
     my $lock_file=$self->{'lock_file'};
 
-    my ($name, $passwd, $uid, $gid) = getpwnam($runas_user) or die "невозможно запуститься под $runas_user";
+    my ($name, $passwd, $uid, $gid) = getpwnam($runas_user) or die "[FAILED] Невозможно запуститься под $runas_user";
     
     my $pid = fork();
     
-    die "не удается создать форк: $!" unless(defined($pid));
+    die "[FAILED] Не удается создать форк: $!" unless(defined($pid));
     
      
     if($pid)
     {
         # Запись файле блокировки
-        open(my $pid_file, ">" ,$lock_file) || die "Не удалось создать файл блокировки $lock_file\n";
+        open(my $pid_file, ">" ,$lock_file) || die "[FAILED] Не удалось создать файл блокировки $lock_file\n";
         print $pid_file "$pid";
         close $pid_file;
         chown $uid, $gid, $lock_file;
