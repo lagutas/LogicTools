@@ -21,4 +21,12 @@ no_index:
     - inc
 requires:
   perl: 5.010001
-version: 0.06
+  inc::Module::Install: 1.06
+  Config::IniFiles: 2.75
+  DBI: 1.622
+  Test::Strict: 0.14
+  Test::Fixme: 0.04
+  Test::Perl::Critic: 1.02
+  Test::Strict: 0.14
+  Test::Fork: 0.02
+version: 0.02

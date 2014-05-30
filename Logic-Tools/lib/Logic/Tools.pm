@@ -4,7 +4,7 @@ use 5.10.1;
 use strict;
 use warnings;
 use Config::IniFiles;
-use Time::localtime;
+#use Time::localtime;
 
 use POSIX;
 
@@ -14,12 +14,12 @@ Voiecng::Tools - The great new Logic::Tools!
 
 =head1 VERSION
 
-Version 0.5
+Version 0.6
 
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 
 =head1 SYNOPSIS
@@ -120,10 +120,13 @@ sub logprint
     my $loglevel=shift;
     my $message=shift;
 
-    my $tm=localtime;
-    open my $logfile,">>",$self->{'logfile'};
-    
-    printf $logfile ("%04d/%02d/%02d %02d:%02d:%02d [%d] %s: %s\n",$tm->year+1900,$tm->mon+1,$tm->mday,$tm->hour,$tm->min,$tm->sec,$$,$loglevel,$message);
+    #my $tm=localtime;
+
+    my ($sec, $min, $hour, $day, $mon, $year) = ( localtime(time) )[0,1,2,3,4,5];
+
+    open my $logfile,">>",$self->{'logfile'};    
+
+    printf $logfile ("%04d/%02d/%02d %02d:%02d:%02d [%d] %s: %s\n",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
 
     close($logfile);
 

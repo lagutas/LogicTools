@@ -22,6 +22,14 @@ no_index:
     - t
 requires:
   perl: 5.10.1
+  inc::Module::Install: 1.06
+  Config::IniFiles: 2.75
+  DBI: 1.622
+  Test::Strict: 0.14
+  Test::Fixme: 0.04
+  Test::Perl::Critic: 1.02
+  Test::Strict: 0.14
+  Test::Fork: 0.02
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.06
+version: 0.02

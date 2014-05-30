@@ -20,7 +20,7 @@
 #     NAME => q[Logic::Tools]
 #     NO_META => q[1]
 #     PREREQ_PM => { Test::More=>q[0], ExtUtils::MakeMaker=>q[6.59] }
-#     VERSION => q[0.02]
+#     VERSION => q[0.06]
 #     VERSION_FROM => q[lib/Logic/Tools.pm]
 #     dist => { PREOP=>q[$(PERL) -I. "-MModule::Install::Admin" -e "dist_preop(q($(DISTVNAME)))"] }
 #     realclean => { FILES=>q[MYMETA.yml] }
@@ -63,11 +63,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Logic::Tools
 NAME_SYM = Logic_Tools
-VERSION = 0.02
+VERSION = 0.06
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_02
+VERSION_SYM = 0_06
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.02
+XS_VERSION = 0.06
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -265,7 +265,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Logic-Tools
-DISTVNAME = Logic-Tools-0.02
+DISTVNAME = Logic-Tools-0.06
 
 
 # --- MakeMaker macro section:
@@ -757,7 +757,7 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0.02">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0.06">' > $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>The great new Logic::Tools!</ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>lagutas, C&lt;&lt; &lt;lagutas at gmail.com&gt; &gt;&gt;, lagutas &lt;lagutas@gmail.com&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
