@@ -1,5 +1,6 @@
-Revision history for Logic-Tools
+Revision history for Perl module Logic::Tools
 
-0.01    Date/time
-        First version, released on an unsuspecting world.
+0.02 Thu Aug  7 16:51:31 2014
+    - original version; created by ExtUtils::ModuleMaker 0.52
+
 

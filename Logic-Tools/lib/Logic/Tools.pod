@@ -13,7 +13,9 @@ Logic::Tools - The great new Logic::Tools!
     my $tools=Logic::Tools->new(config_file	=>	'/etc/kamailio/kamailio-tools.ini',
 				lock_file	=>	$lock_file,
 				runas_user	=>	$runas_user,
-				logfile		=>	'/var/log/dialog_from_kamctl.log');
+				logfile		=>	'/var/log/dialog_from_kamctl.log',
+				logsize		=>	'100Mb',
+				log_num		=>	4);
     
     my $db_host=$tools->read_config( 'dialog_from_kamctl', 'db_host');
     
@@ -51,7 +53,21 @@ Logic::Tools - The great new Logic::Tools!
 
 пользователь под которым запускать приложение
 
-=item logfile файл для сохранения лога
+=item logfile 
+
+файл для сохранения лога
+
+=back
+
+=item logsize 
+
+максимальный размер лог файла, может быть в Kb, Mb, Gb
+
+=back
+
+=item log_num 
+
+количество сротированный лог файлов
 
 =back
 
@@ -106,6 +122,12 @@ emergency
 =item start_daemon
 
 запускает процесс как демон под пользователем runas_user, создает файл блокировки lock_file
+
+=back
+
+=item supervisor_start_daemon
+
+запускает процесс как демон под пользователем runas_user, создает файл блокировки lock_file, посредством программы supervisord
 
 =back
 
