@@ -16,12 +16,12 @@ Voiecng::Tools - The great new Logic::Tools!
 
 =head1 VERSION
 
-Version 0.4.2
+Version 0.4.3
 
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.4.2';
+our $VERSION = '0.4.3';
 
 
 =head1 SYNOPSIS
@@ -165,48 +165,53 @@ sub logprint
             $logsize=$self->{'logsize'};
         }
 
-        my $statfile = stat($self->{'logfile'}) or die "печалька\n";
-        my $size = $statfile->size;
-
-
-        if($size>$logsize)
+        my $statfile = stat($self->{'logfile'});
+        if(defined($statfile))
         {
-            my $filename;
-            my $log_path;
-            if($self->{'logfile'}=~/^(.+)\/(.+).log$/)
+            my $size = $statfile->size;
+            if($size>$logsize)
             {
-                $log_path=$1;
-                $filename=$2;
-            }
-    
-            #проверяем количество файлов которые уже есть в логах
-            my @gz_files_list = glob($log_path.'/'.$filename.'*.gz');
-
-            my $log_file_exist=scalar(@gz_files_list);
-
-            #количество лишних файлов
-            my $num_of_redundant_files;
-
-            if($log_file_exist>=$lognum)
-            {
-                $num_of_redundant_files=$log_file_exist-$lognum;
-                for(my $i=0;$i<=$num_of_redundant_files;$i++)
+                my $filename;
+                my $log_path;
+                if($self->{'logfile'}=~/^(.+)\/(.+).log$/)
                 {
-                    unlink($gz_files_list[$i]);
+                    $log_path=$1;
+                    $filename=$2;
                 }
+    
+                #проверяем количество файлов которые уже есть в логах
+                my @gz_files_list = glob($log_path.'/'.$filename.'*.gz');
+
+                my $log_file_exist=scalar(@gz_files_list);
+
+                #количество лишних файлов
+                my $num_of_redundant_files;
+
+                if($log_file_exist>=$lognum)
+                {
+                    $num_of_redundant_files=$log_file_exist-$lognum;
+                    for(my $i=0;$i<=$num_of_redundant_files;$i++)
+                    {
+                        unlink($gz_files_list[$i]);
+                    }
+                }
+
+                
+
+
+                my $tar = Archive::Tar->new;
+                $tar->add_files($self->{'logfile'});
+                #формируем суффикс чтобы
+                my $suffix=sprintf("%04d%02d%02d%02d%02d%02d",$year+1900,$mon+1,$day,$hour,$min,$sec);
+                $tar->write('/var/log/'.$filename.'-'.$suffix.'.gz', COMPRESS_GZIP);
+                #удаляем лог
+                unlink($self->{'logfile'});
             }
-
-            
-
-
-            my $tar = Archive::Tar->new;
-            $tar->add_files($self->{'logfile'});
-            #формируем суффикс чтобы
-            my $suffix=sprintf("%04d%02d%02d%02d%02d%02d",$year+1900,$mon+1,$day,$hour,$min,$sec);
-            $tar->write('/var/log/'.$filename.'-'.$suffix.'.gz', COMPRESS_GZIP);
-            #удаляем лог
-            unlink($self->{'logfile'});
         }
+        
+
+
+        
     }
     
 
