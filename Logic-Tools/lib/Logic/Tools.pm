@@ -133,7 +133,7 @@ sub logprint
     #высчитывае максимальный размер лога в байтах
     if(defined($self->{'logsize'}))
     {
-        my $logsize;
+        my $logsize=$self->{'logsize'};
         my $lognum;
 
         if(!defined($self->{'log_num'}))
@@ -145,6 +145,7 @@ sub logprint
             $lognum=$self->{'log_num'};
         }
         
+	
         if($self->{'logsize'}=~/^(\d+)(.{2})$/)
         {
             if(($2 eq "Kb")||($2 eq "KB")||($2 eq "kb"))
@@ -160,25 +161,25 @@ sub logprint
                 $logsize=$1*1024*1024*1024;
             }
         }
-        else
-        {
-            $logsize=$self->{'logsize'};
-        }
+
 
         my $statfile = stat($self->{'logfile'});
         if(defined($statfile))
         {
             my $size = $statfile->size;
+    
             if($size>$logsize)
             {
+		
                 my $filename;
                 my $log_path;
-                if($self->{'logfile'}=~/^(.+)\/(.+).log$/)
+		#/home/jenkins_publish/deploy/11/deploy.log
+                if($self->{'logfile'}=~/^(.+)\/(.+)\.log$/)
                 {
                     $log_path=$1;
                     $filename=$2;
                 }
-    
+
                 #проверяем количество файлов которые уже есть в логах
                 my @gz_files_list = glob($log_path.'/'.$filename.'*.gz');
 
@@ -201,9 +202,11 @@ sub logprint
 
                 my $tar = Archive::Tar->new;
                 $tar->add_files($self->{'logfile'});
+		
                 #формируем суффикс чтобы
                 my $suffix=sprintf("%04d%02d%02d%02d%02d%02d",$year+1900,$mon+1,$day,$hour,$min,$sec);
-                $tar->write('/var/log/'.$filename.'-'.$suffix.'.gz', COMPRESS_GZIP);
+
+                $tar->write($log_path."/".$filename.'-'.$suffix.'.gz', COMPRESS_GZIP) or die "error";
                 #удаляем лог
                 unlink($self->{'logfile'});
             }
@@ -214,8 +217,7 @@ sub logprint
         
     }
     
-
-    open my $logfile,">>",$self->{'logfile'};  
+    open my $logfile,">>",$self->{'logfile'} or die "ERROR: can't open file\n";
 
     printf $logfile ("%04d/%02d/%02d %02d:%02d:%02d [%d] %s: %s\n",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
 
