@@ -4,9 +4,6 @@ use 5.10.1;
 use strict;
 use warnings;
 use Config::IniFiles;
-use File::stat;
-use Archive::Tar;
-#use Time::localtime;
 
 use POSIX;
 
@@ -16,12 +13,12 @@ Voiecng::Tools - The great new Logic::Tools!
 
 =head1 VERSION
 
-Version 0.4.5
+Version 0.5.5
 
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.4.5';
+our $VERSION = '0.5.5';
 
 
 =head1 SYNOPSIS
@@ -48,12 +45,6 @@ if you don't export anything, such as for a purely object-oriented module.
 
 sub new
 {
-    $SIG{INT} = \&close_prog;
-    $SIG{QUIT} = \&close_prog;
-    $SIG{TERM} = \&close_prog;
-
-    $SIG{CHLD} = 'IGNORE';
-
     my $invocant = shift; # первый параметр - ссылка на объект или имя класса
     my $class = ref($invocant) || $invocant; # получение имени класса        
     my $self = { @_ }; # ссылка на анонимный хеш - это и будет нашим новым объектом, инициализация объекта
@@ -61,7 +52,7 @@ sub new
 
     $self->{NAME}=$invocant;
     $self->{VERSION}=$VERSION;
-	
+    
     bless($self, $class); # освящаем ссылку в объект
     return $self; # возвращаем объект
 }
@@ -71,20 +62,20 @@ sub new
 
 sub read_config
 {
-	my $model=shift;
+    my $model=shift;
     my $self=$model->new(%$model,@_);
 
     my $config_file = $self->{'config_file'};
-	my $section = shift || die "[FAILED] Не задана секция для чтения конфига";
-	my $param = shift || die "[FAILED] Не задан параметр для чтения конфига";
+    my $section = shift || die "[FAILED] Не задана секция для чтения конфига";
+    my $param = shift || die "[FAILED] Не задан параметр для чтения конфига";
 
     my $cfg=new Config::IniFiles( -file => $config_file ) or die "[FAILED]] Не найден конфигурационный файл $config_file";
 
-	my $value = $cfg->val( $section, $param);
+    my $value = $cfg->val( $section, $param);
 
-	die "[FAILED] Не найден параметр ".$param." в секции ".$section unless(defined($value));
+    die "[FAILED] Не найден параметр ".$param." в секции ".$section unless(defined($value));
 
-	return $value;
+    return $value;
 }
 
 
@@ -128,106 +119,37 @@ sub logprint
     my $loglevel=shift;
     my $message=shift;
 
+    use Log::Any '$log';
+    use Log::Any::Adapter;
+    if($self->{'logfile'} eq "Stdout")
+    {
+        Log::Any::Adapter->set('Stdout');   
+    }
+    elsif($self->{'logfile'} eq "Syslog")
+    {
+        Log::Any::Adapter->set('Syslog');
+    }
+    else
+    {
+        Log::Any::Adapter->set('File', $self->{'logfile'});
+    }   
     my ($sec, $min, $hour, $day, $mon, $year) = ( localtime(time) )[0,1,2,3,4,5];
     
-    #высчитывае максимальный размер лога в байтах
-    if(defined($self->{'logsize'}))
+    
+    my $logstring=sprintf("%04d/%02d/%02d %02d:%02d:%02d [%d]: %s",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$message);
+    if($loglevel eq "info")
     {
-        my $logsize=$self->{'logsize'};
-        my $lognum;
-
-        if(!defined($self->{'log_num'}))
-        {
-            $lognum=1;
-        }
-        else
-        {
-            $lognum=$self->{'log_num'};
-        }
         
-	
-        if($self->{'logsize'}=~/^(\d+)(.{2})$/)
-        {
-            if(($2 eq "Kb")||($2 eq "KB")||($2 eq "kb"))
-            {
-                $logsize=$1*1024;
-            }
-            elsif(($2 eq "Mb")||($2 eq "MB")||($2 eq "mb"))
-            {
-                $logsize=$1*1024*1024;
-            }
-            elsif(($2 eq "Gb")||($2 eq "GB")||($2 eq "gb"))
-            {
-                $logsize=$1*1024*1024*1024;
-            }
-        }
-
-
-        my $statfile = stat($self->{'logfile'});
-        if(defined($statfile))
-        {
-            my $size = $statfile->size;
-    
-            if($size>$logsize)
-            {
-		
-                my $filename;
-                my $log_path;
-		#/home/jenkins_publish/deploy/11/deploy.log
-                if($self->{'logfile'}=~/^(.+)\/(.+)\.log$/)
-                {
-                    $log_path=$1;
-                    $filename=$2;
-                }
-
-                #проверяем количество файлов которые уже есть в логах
-                my @gz_files_list = glob($log_path.'/'.$filename.'*.gz');
-
-                my $log_file_exist=scalar(@gz_files_list);
-
-                #количество лишних файлов
-                my $num_of_redundant_files;
-
-                if($log_file_exist>=$lognum)
-                {
-                    $num_of_redundant_files=$log_file_exist-$lognum;
-                    for(my $i=0;$i<=$num_of_redundant_files;$i++)
-                    {
-                        unlink($gz_files_list[$i]);
-                    }
-                }
-
-                
-
-
-                my $tar = Archive::Tar->new;
-                $tar->add_files($self->{'logfile'});
-		
-                #формируем суффикс чтобы
-                my $suffix=sprintf("%04d%02d%02d%02d%02d%02d",$year+1900,$mon+1,$day,$hour,$min,$sec);
-
-                $tar->write($log_path."/".$filename.'-'.$suffix.'.gz', COMPRESS_GZIP) or die "error";
-                #удаляем лог
-                unlink($self->{'logfile'});
-            }
-        }
-        
-
-
-        
+        $log->info("$logstring");    
     }
-    
-    open my $logfile,">>",$self->{'logfile'} or die "ERROR: can't open file\n";
-
-    printf $logfile ("%04d/%02d/%02d %02d:%02d:%02d [%d] %s: %s\n",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
-
-    close($logfile);
 
     return 1;
 }
 
 sub start_daemon
 {
+    $SIG{CHLD} = 'IGNORE';
+
     my $model=shift;
     my $self=$model->new(%$model,@_);
 
@@ -274,6 +196,12 @@ sub start_daemon
 my $first_child_pid=0;
 sub supervisor_start_daemon
 {
+    $SIG{INT} = \&close_prog;
+    $SIG{QUIT} = \&close_prog;
+    $SIG{TERM} = \&close_prog;
+
+    $SIG{CHLD} = 'IGNORE';
+
     my $model=shift;
     my $self=$model->new(%$model,@_);
 
@@ -292,7 +220,7 @@ sub supervisor_start_daemon
         # Запись файле блокировки
         open(my $pid_file, ">" ,$lock_file) || die "[FAILED] can't create block file $lock_file\n";
         print $pid_file "$first_child_pid";
-        close $pid_file;		
+        close $pid_file;        
         chown $uid, $gid, $lock_file;
         while(1)
         {
@@ -322,9 +250,9 @@ sub supervisor_start_daemon
 
 sub close_prog 
 {   
-	#отправка сигнала завершения дочернему процессу
-	kill("TERM",$first_child_pid);
-	die "TERM signal recieved\n";
+    #отправка сигнала завершения дочернему процессу
+    kill("TERM",$first_child_pid);
+    die "TERM signal recieved\n";
     exit;
 }
 
