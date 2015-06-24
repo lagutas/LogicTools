@@ -10,14 +10,17 @@ Logic::Tools - The great new Logic::Tools!
 
 =pod
 
-    my $tools=Logic::Tools->new(config_file	=>	'/etc/kamailio/kamailio-tools.ini',
-				lock_file	=>	$lock_file,
-				runas_user	=>	$runas_user,
-				logfile		=>	'/var/log/dialog_from_kamctl.log',
-				logsize		=>	'100Mb',
-				log_num		=>	4);
+    my $tools=Logic::Tools->new(config_file =>  '/etc/config/config.ini.ini',
+                                lock_file   =>  $lock_file,
+                                runas_user  =>  $runas_user,
+                                logfile     =>  '/var/log/log.log');
+
+    #lock_file => 'path_to_file' - logging in to file
+    #lock_file => 'Syslog' - logging in to syslog
+    #lock_file => 'Stdout' - logging in to stdout
+
     
-    my $db_host=$tools->read_config( 'dialog_from_kamctl', 'db_host');
+    my $db_host=$tools->read_config( 'config', 'db_host');
     
     #проверка не запущен ли этот процесс
     $tools->check_proc();
@@ -87,7 +90,7 @@ Logic::Tools - The great new Logic::Tools!
 
 =item SECTION - конфиг файл состоит из секций, в квадратных скобках указано название секции
 
-=item PARAM	- внутри секции параметрам соответствует значение
+=item PARAM - внутри секции параметрам соответствует значение
 
 =back 
 

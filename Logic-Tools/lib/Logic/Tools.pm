@@ -4,6 +4,8 @@ use 5.10.1;
 use strict;
 use warnings;
 use Config::IniFiles;
+use Log::Any::Adapter; 
+use Log::Any::Adapter::Syslog;
 
 use POSIX;
 
@@ -120,27 +122,66 @@ sub logprint
     my $message=shift;
 
     use Log::Any '$log';
-    use Log::Any::Adapter;
+
+    my $logstring;
     if($self->{'logfile'} eq "Stdout")
     {
-        Log::Any::Adapter->set('Stdout');   
+        Log::Any::Adapter->set('Stdout');
+        my ($sec, $min, $hour, $day, $mon, $year) = ( localtime(time) )[0,1,2,3,4,5];
+        $logstring=sprintf("%04d/%02d/%02d %02d:%02d:%02d [%d][%s]: %s",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
     }
     elsif($self->{'logfile'} eq "Syslog")
     {
         Log::Any::Adapter->set('Syslog');
+        $logstring=$message;
     }
     else
     {
         Log::Any::Adapter->set('File', $self->{'logfile'});
+        my ($sec, $min, $hour, $day, $mon, $year) = ( localtime(time) )[0,1,2,3,4,5];
+        $logstring=sprintf("%04d/%02d/%02d %02d:%02d:%02d [%d][%s]: %s",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
     }   
-    my ($sec, $min, $hour, $day, $mon, $year) = ( localtime(time) )[0,1,2,3,4,5];
     
-    
-    my $logstring=sprintf("%04d/%02d/%02d %02d:%02d:%02d [%d]: %s",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$message);
-    if($loglevel eq "info")
+
+    if($loglevel eq "trace")
     {
-        
-        $log->info("$logstring");    
+        $log->trace("$logstring");
+    }
+    elsif($loglevel eq "debug")
+    {
+        $log->debug("$logstring");
+    }
+    elsif($loglevel eq "info")
+    {
+        $log->info("$logstring");
+    }
+    elsif($loglevel eq "notice")
+    {
+        $log->notice("$logstring");
+    }
+    elsif($loglevel eq "notice")
+    {
+        $log->notice("$logstring");
+    }
+    elsif($loglevel eq "warning")
+    {
+        $log->warning("$logstring");
+    }
+    elsif($loglevel eq "error")
+    {
+        $log->error("$logstring");
+    }
+    elsif($loglevel eq "critical")
+    {
+        $log->critical("$logstring");
+    }
+    elsif($loglevel eq "alert")
+    {
+        $log->alert("$logstring");
+    }
+    elsif($loglevel eq "emergency")
+    {
+        $log->emergency("$logstring");
     }
 
     return 1;
