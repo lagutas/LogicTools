@@ -127,19 +127,17 @@ sub logprint
     if($self->{'logfile'} eq "Stdout")
     {
         Log::Any::Adapter->set('Stdout');
-        my ($sec, $min, $hour, $day, $mon, $year) = ( localtime(time) )[0,1,2,3,4,5];
-        $logstring=sprintf("%04d/%02d/%02d %02d:%02d:%02d [%d][%s]: %s",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
+        $logstring=sprintf("[%d][%s]: %s",$$,$loglevel,$message);
     }
     elsif($self->{'logfile'} eq "Syslog")
     {
         Log::Any::Adapter->set('Syslog');
-        $logstring=$message;
+        $logstring=sprintf("[%d]: %s",$$,$message);
     }
     else
     {
         Log::Any::Adapter->set('File', $self->{'logfile'});
-        my ($sec, $min, $hour, $day, $mon, $year) = ( localtime(time) )[0,1,2,3,4,5];
-        $logstring=sprintf("%04d/%02d/%02d %02d:%02d:%02d [%d][%s]: %s",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
+        $logstring=sprintf("[%d][%s]: %s",$$,$loglevel,$message);
     }   
     
 
