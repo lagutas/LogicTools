@@ -123,11 +123,12 @@ sub logprint
 
     use Log::Any '$log';
 
+    my ($sec, $min, $hour, $day, $mon, $year) = ( localtime(time) )[0,1,2,3,4,5];
     my $logstring;
     if($self->{'logfile'} eq "Stdout")
     {
         Log::Any::Adapter->set('Stdout');
-        $logstring=sprintf("[%d][%s]: %s",$$,$loglevel,$message);
+        $logstring=sprintf("%04d/%02d/%02d %02d:%02d:%02d [%d][%s]: %s",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
     }
     elsif($self->{'logfile'} eq "Syslog")
     {
@@ -137,7 +138,7 @@ sub logprint
     else
     {
         Log::Any::Adapter->set('File', $self->{'logfile'});
-        $logstring=sprintf("[%d][%s]: %s",$$,$loglevel,$message);
+        $logstring=sprintf("%04d/%02d/%02d %02d:%02d:%02d [%d][%s]: %s",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
     }   
     
 

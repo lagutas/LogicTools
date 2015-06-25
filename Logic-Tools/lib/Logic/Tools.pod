@@ -62,18 +62,6 @@ Logic::Tools - The great new Logic::Tools!
 
 =back
 
-=item logsize 
-
-максимальный размер лог файла, может быть в Kb, Mb, Gb
-
-=back
-
-=item log_num 
-
-количество сротированный лог файлов
-
-=back
-
 =back
 
 =head1 METHODS
