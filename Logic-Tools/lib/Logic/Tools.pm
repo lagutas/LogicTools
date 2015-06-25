@@ -20,7 +20,7 @@ Version 0.5.5
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.5.1';
+our $VERSION = '0.5.2';
 
 
 =head1 SYNOPSIS
