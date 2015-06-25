@@ -19,7 +19,6 @@ WriteMakefile(
             'Config::IniFiles' => 2.75,
             'Archive::Tar' => 1.58,
             'Log::Any' => 1.032,
-            'Log::Any::Adapter' => 1.032,
             'Log::Any::Adapter::Syslog' => 1.5
                     },
 );

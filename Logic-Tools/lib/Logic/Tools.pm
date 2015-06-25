@@ -15,12 +15,12 @@ Voiecng::Tools - The great new Logic::Tools!
 
 =head1 VERSION
 
-Version 0.5.5
+Version 0.5.3
 
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.5.2';
+our $VERSION = '0.5.3';
 
 
 =head1 SYNOPSIS
