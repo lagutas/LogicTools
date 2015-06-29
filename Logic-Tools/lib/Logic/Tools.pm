@@ -15,12 +15,12 @@ Voiecng::Tools - The great new Logic::Tools!
 
 =head1 VERSION
 
-Version 0.5.4
+Version 0.5.5
 
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.5.4';
+our $VERSION = '0.5.5';
 
 
 =head1 SYNOPSIS
@@ -83,8 +83,7 @@ sub new
 
 sub read_config
 {
-    my $model=shift;
-    my $self=$model->new(%$model,@_);
+    my $self = shift;
 
     my $config_file = $self->{'config_file'};
     my $section = shift || die "[FAILED] Не задана секция для чтения конфига";
@@ -102,8 +101,7 @@ sub read_config
 
 sub check_proc
 {
-    my $model=shift;
-    my $self=$model->new(%$model,@_);
+    my $self = shift;
 
     my $pid_f = $self->{'lock_file'};
     
@@ -134,8 +132,7 @@ sub check_proc
 
 sub logprint
 {
-    my $model=shift;
-    my $self=$model->new(%$model,@_);
+    my $self = shift;
 
     my $loglevel=shift;
     my $message=shift;
@@ -205,8 +202,7 @@ sub start_daemon
 {
     $SIG{CHLD} = 'IGNORE';
 
-    my $model=shift;
-    my $self=$model->new(%$model,@_);
+    my $self = shift;
 
     my $runas_user=$self->{'runas_user'};
     my $lock_file=$self->{'lock_file'};
@@ -257,8 +253,7 @@ sub supervisor_start_daemon
 
     $SIG{CHLD} = 'IGNORE';
 
-    my $model=shift;
-    my $self=$model->new(%$model,@_);
+    my $self = shift;
 
     my $runas_user=$self->{'runas_user'};
     my $lock_file=$self->{'lock_file'};
