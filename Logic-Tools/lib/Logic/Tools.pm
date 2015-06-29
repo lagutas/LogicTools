@@ -15,12 +15,12 @@ Voiecng::Tools - The great new Logic::Tools!
 
 =head1 VERSION
 
-Version 0.5.3
+Version 0.5.4
 
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.5.3';
+our $VERSION = '0.5.4';
 
 
 =head1 SYNOPSIS
@@ -45,10 +45,15 @@ if you don't export anything, such as for a purely object-oriented module.
 =head1 constructor
 =cut
 
+
 sub new
 {
     my $invocant = shift; # первый параметр - ссылка на объект или имя класса
     my $class = ref($invocant) || $invocant; # получение имени класса        
+
+    my $log;
+    use Log::Any '$log';
+
     my $self = { @_ }; # ссылка на анонимный хеш - это и будет нашим новым объектом, инициализация объекта
     my $log_level;
 
@@ -56,6 +61,20 @@ sub new
     $self->{VERSION}=$VERSION;
     
     bless($self, $class); # освящаем ссылку в объект
+
+    if($self->{'logfile'} eq "Stdout")
+    {
+        Log::Any::Adapter->set('Stdout');
+    }
+    elsif($self->{'logfile'} eq "Syslog")
+    {
+        Log::Any::Adapter->set('Syslog');
+    }
+    else
+    {
+        Log::Any::Adapter->set('File', $self->{'logfile'});
+    }   
+
     return $self; # возвращаем объект
 }
 
@@ -121,24 +140,19 @@ sub logprint
     my $loglevel=shift;
     my $message=shift;
 
-    use Log::Any '$log';
-
     
     my $logstring;
     if($self->{'logfile'} eq "Stdout")
     {
-        Log::Any::Adapter->set('Stdout');
         my ($sec, $min, $hour, $day, $mon, $year) = ( localtime(time) )[0,1,2,3,4,5];
         $logstring=sprintf("%04d/%02d/%02d %02d:%02d:%02d [%d][%s]: %s",$year+1900,$mon+1,$day,$hour,$min,$sec,$$,$loglevel,$message);
     }
     elsif($self->{'logfile'} eq "Syslog")
     {
-        Log::Any::Adapter->set('Syslog');
         $logstring=sprintf("[%d]: %s",$$,$message);
     }
     else
     {
-        Log::Any::Adapter->set('File', $self->{'logfile'});
         $logstring=sprintf("[%d][%s]: %s",$$,$loglevel,$message);
     }   
     
