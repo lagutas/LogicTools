@@ -15,7 +15,7 @@ Voiecng::Tools - The great new Logic::Tools!
 
 =head1 VERSION
 
-Version 0.5.5
+Version 0.5.6
 
 =cut
 
