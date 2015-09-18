@@ -20,7 +20,7 @@ Version 0.5.5
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.5.5';
+our $VERSION = '0.5.6';
 
 
 =head1 SYNOPSIS
@@ -62,18 +62,24 @@ sub new
     
     bless($self, $class); # освящаем ссылку в объект
 
-    if($self->{'logfile'} eq "Stdout")
+    if(defined($self->{'logfile'}))
     {
-        Log::Any::Adapter->set('Stdout');
+        if($self->{'logfile'} eq "Stdout")
+        {
+            Log::Any::Adapter->set('Stdout');
+        }
+        elsif($self->{'logfile'} eq "Syslog")
+        {
+
+            Log::Any::Adapter->set('Syslog',
+                                    name     => $self->{'syslog_name'});
+        }
+        else
+        {
+            Log::Any::Adapter->set('File', $self->{'logfile'});
+        }       
     }
-    elsif($self->{'logfile'} eq "Syslog")
-    {
-        Log::Any::Adapter->set('Syslog');
-    }
-    else
-    {
-        Log::Any::Adapter->set('File', $self->{'logfile'});
-    }   
+    
 
     return $self; # возвращаем объект
 }
@@ -136,6 +142,12 @@ sub logprint
 
     my $loglevel=shift;
     my $message=shift;
+
+    $message=~s/\n/ /g;
+    while($message=~/\s\s/)
+    {
+        $message=~s/\s\s/ /g;
+    }
 
     
     my $logstring;
