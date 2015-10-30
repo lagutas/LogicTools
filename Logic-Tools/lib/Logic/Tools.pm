@@ -1,6 +1,5 @@
 package Logic::Tools;
 
-use 5.10.1;
 use strict;
 use warnings;
 use Config::IniFiles;
@@ -15,12 +14,12 @@ Voiecng::Tools - The great new Logic::Tools!
 
 =head1 VERSION
 
-Version 0.5.6
+Version 0.5.7
 
 =cut
 
 my @ISA = qw(Logic);
-our $VERSION = '0.5.6';
+our $VERSION = '0.5.7';
 
 
 =head1 SYNOPSIS
