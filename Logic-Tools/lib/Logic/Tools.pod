@@ -112,13 +112,19 @@ emergency
 
 =back
 
+=over 4
+
 =item start_daemon
 
 запускает процесс как демон под пользователем runas_user, создает файл блокировки lock_file
 
+=over 4
+
 =item supervisor_start_daemon
 
 запускает процесс как демон под пользователем runas_user, создает файл блокировки lock_file, посредством программы supervisord
+
+=back
 
 =back
 

@@ -6,6 +6,9 @@ use Config::IniFiles;
 use Log::Any::Adapter; 
 use Log::Any::Adapter::Syslog;
 use DBI();
+use AnyEvent;
+use AnyEvent::Fork;
+
 
 
 use POSIX;
@@ -318,151 +321,6 @@ sub close_prog
     die "TERM signal recieved\n";
     exit;
 }
-
-sub mysql_connect
-{
-    my $self = shift;
-
-    my $db = shift;
-    my $db_host = shift;
-    my $db_user = shift;
-    my $db_password = shift;
-
-    my $dbh;
-    eval 
-    {
-        $dbh=DBI->connect("DBI:mysql:$db;host=$db_host",$db_user,$db_password);
-    };
-    if ($@) 
-    {
-        die "Error: не удается подключиться к базе данных $db $db_host $db_user $DBI::errstr\n";
-    }
-    $dbh->{mysql_auto_reconnect} = 1;
-
-    return $dbh;
-}
-
-sub mysql_query
-{
-    my $self = shift;
-    my $log = shift;
-    my $dbh = shift;
-    my $query = shift;
-    my $execute_arg = shift;
-
-    my $sth=$dbh->prepare($query);
-
-
-    eval 
-    {
-        if(defined($execute_arg))
-        {
-            my @args=split(/\|/,$execute_arg);
-    
-
-            if($#args==0)
-            {
-                $sth->execute($args[0]);
-            }
-            elsif($#args==1)
-            {
-                $sth->execute($args[0],$args[1]);
-            }
-            elsif($#args==2)
-            {
-                $sth->execute($args[0],$args[1],$args[2]);
-            }
-            elsif($#args==3)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3]);
-            }
-            elsif($#args==4)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4]);
-            }
-            elsif($#args==5)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5]);
-            }
-            elsif($#args==6)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6]);
-            }
-            elsif($#args==7)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7]);
-            }
-            elsif($#args==8)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8]);
-            }
-            elsif($#args==9)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9]);
-            }
-            elsif($#args==10)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10]);
-            }
-            elsif($#args==11)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11]);
-            }
-            elsif($#args==12)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],$args[12]);
-            }
-            elsif($#args==13)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],$args[12],$args[13]);
-            }
-            elsif($#args==14)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],$args[12],$args[13],$args[14]);
-            }
-            elsif($#args==15)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],$args[12],$args[13],$args[14],$args[15]);
-            }
-            elsif($#args==16)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],$args[12],$args[13],$args[14],$args[15],$args[16]);
-            }
-            elsif($#args==17)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],$args[12],$args[13],$args[14],$args[15],$args[16],$args[17]);
-            }
-            elsif($#args==18)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],$args[12],$args[13],$args[14],$args[15],$args[16],$args[17],$args[18]);
-            }
-            elsif($#args==19)
-            {
-                $sth->execute($args[0],$args[1],$args[2],$args[3],$args[4],$args[5],$args[6],$args[7],$args[8],$args[9],$args[10],$args[11],$args[12],$args[13],$args[14],$args[15],$args[16],$args[17],$args[18],$args[19]);
-            }
-            
-        }
-        else
-        {
-            $sth->execute();
-        }
-    };
-    if ($@) 
-    {
-        $$log{time*100000}="error<:>error in $query ($execute_arg) $DBI::errstr";
-    }
-
-    my @data;
-    while(my $ref = $sth->fetchrow_hashref())
-    {   
-        push(@data,\%$ref);
-    }
-
-    $sth->finish();
-
-    return \@data;
-}
-
 
 =head1 AUTHOR
 
